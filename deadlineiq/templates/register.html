@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeadlineIQ — Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0b0f;--surface:#12141a;--border:#252836;--accent:#6c63ff;--accent-soft:#6c63ff22;--accent-glow:#6c63ff44;--text:#e8eaf0;--muted:#6b7090;--dim:#3d4060;--green:#2dd4a0;--red:#ff5f6d}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.3;pointer-events:none}
+.glow{position:fixed;width:600px;height:600px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);bottom:-200px;right:-200px;pointer-events:none}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:440px;position:relative;z-index:1;box-shadow:0 32px 80px #000a}
+.logo{text-align:center;margin-bottom:28px}
+.logo-mark{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-1px}
+.logo-mark span{color:var(--accent)}
+h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:6px}
+.subtitle{font-size:13px;color:var(--muted);margin-bottom:24px}
+.field{margin-bottom:14px}
+label{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
+input{width:100%;background:#1a1d26;border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:14px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:border .15s}
+input:focus{border-color:var(--accent)}
+input::placeholder{color:var(--dim)}
+.btn{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;margin-top:4px}
+.btn:hover{background:#7c74ff;box-shadow:0 6px 24px var(--accent-glow)}
+.link-row{text-align:center;margin-top:18px;font-size:13px;color:var(--muted)}
+.link-row a{color:var(--accent);text-decoration:none;font-weight:500}
+.error{background:#ff5f6d18;border:1px solid #ff5f6d44;border-radius:8px;padding:10px 13px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
+.strength{height:4px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden}
+.strength-fill{height:100%;border-radius:2px;transition:all .3s}
+.perks{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.perk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.perk-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="glow"></div>
+<div class="card">
+  <div class="logo">
+    <div class="logo-mark">Dead<span>line</span>IQ</div>
+  </div>
+  <h2>Create your account</h2>
+  <p class="subtitle">Start tracking smarter — free, forever</p>
+  <div class="perks">
+    <div class="perk"><div class="perk-dot"></div>AI Priority Ranking</div>
+    <div class="perk"><div class="perk-dot"></div>Grade Simulator</div>
+    <div class="perk"><div class="perk-dot"></div>Collision Detection</div>
+    <div class="perk"><div class="perk-dot"></div>Study Planner</div>
+  </div>
+  <div class="error" id="err"></div>
+  <div class="field"><label>Full Name</label><input type="text" id="name" placeholder="Alex Chen" autocomplete="name"></div>
+  <div class="field"><label>Email</label><input type="email" id="email" placeholder="you@university.edu" autocomplete="email"></div>
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="pw" placeholder="Min. 6 characters" autocomplete="new-password" oninput="strength(this.value)">
+    <div class="strength"><div class="strength-fill" id="sfill" style="width:0%"></div></div>
+  </div>
+  <button class="btn" onclick="register()">Create Account & Get Started</button>
+  <div class="link-row">Already have an account? <a href="/login">Sign in</a></div>
+</div>
+<script>
+function strength(v){
+  const fill=document.getElementById('sfill');
+  const len=v.length;
+  const score=Math.min(100,len*10+((/[A-Z]/.test(v)?20:0)+(/\d/.test(v)?20:0)));
+  fill.style.width=score+'%';
+  fill.style.background=score<40?'#ff5f6d':score<70?'#f5a623':'#2dd4a0';
+}
+async function register(){
+  const name=document.getElementById('name').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const pw=document.getElementById('pw').value;
+  const err=document.getElementById('err');
+  err.style.display='none';
+  if(!name||!email||!pw){err.textContent='All fields required';err.style.display='block';return}
+  const r=await fetch('/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password:pw})});
+  const d=await r.json();
+  if(d.ok){location.href='/dashboard'}
+  else{err.textContent=d.error||'Registration failed';err.style.display='block'}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter')register()});
+</script>
+</body>
+</html>
