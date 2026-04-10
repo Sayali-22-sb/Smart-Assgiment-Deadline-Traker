@@ -1,4 +1,4 @@
-# Smart Ass. tracker  — Smart Assignment Deadline Tracker
+# Smart Assignment. tracker  — Smart Assignment Deadline Tracker
 
 ## Quick Start
 ```bash
